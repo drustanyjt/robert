@@ -8,7 +8,7 @@ void setup() {
   pinMode(MOTOR_PIN1, OUTPUT);
   pinMode(MOTOR_PIN2, OUTPUT);
   pinMode(TRIG_PIN, OUTPUT);
-  digitalWrite(TRIG_PIN, OUTPUT);
+  digitalWrite(TRIG_PIN, LOW);
   pinMode(ECHO_PIN, INPUT);
   Serial.begin(9600);
 }
