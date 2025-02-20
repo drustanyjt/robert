@@ -90,5 +90,6 @@ void loop()
 {
   // stop_bf_obstacle_loop();
   // test_motor_loop();
-  timed_forward_then_reverse_loop();
+  // timed_forward_then_reverse_loop();
+  spin_motors(FORWARD);
 }
