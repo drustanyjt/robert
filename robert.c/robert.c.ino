@@ -1,16 +1,22 @@
+#include <Servo.h>
+
 #define MOT_H 4
 #define MOT_L 3
 #define TRIG_PIN 12
 #define ECHO_PIN 13
 #define ONLY_ONCE 0
+#define SERVO_PIN 11
 
 const float SPEED_OF_SOUND = 0.0345;
 unsigned long START_TIME = 0;
+bool IS_LAUNCHED = false;
+
+Servo servo;
 
 enum MotorDirection {
-  FORWARD=0,
-  STOP,
-  BACKWARD
+  FORWARD=2,
+  STOP=1,
+  BACKWARD=0
 };
 
 void setup() {
@@ -20,6 +26,9 @@ void setup() {
   pinMode(MOT_H, OUTPUT);
   pinMode(MOT_L, OUTPUT);
   START_TIME = millis();
+
+  servo.attach(SERVO_PIN, 500, 2400); // values calibrated on 28 feb
+  launcher_reset();
   Serial.begin(9600);
 }
 
@@ -86,10 +95,51 @@ bool is_elapsed_time_gt(unsigned long ms) {
   return elapsed_time > ms;
 }
 
+void launcher_reset()
+{
+  servo.write(0);
+}
+
+void launcher_shoot()
+{
+  servo.write(180);
+}
+
+void timed_fw_launch_bw_loop()
+{
+  int forward_time = 2;
+  int launch_time = 5;
+  int stop_time = 5;
+  int reverse_time = 2;
+  spin_motors(FORWARD);
+  delay(forward_time * 1000);
+  spin_motors(STOP);
+  delay(stop_time * 1000);
+  launcher_shoot();
+  delay(launch_time * 1000);
+  launcher_reset();
+  spin_motors(BACKWARD);
+  delay(reverse_time * 1000);
+  spin_motors(STOP);
+  delay(stop_time * 1000);
+}
+
+void launch_loop()
+{
+  launcher_reset();
+  delay(10000);
+  launcher_shoot();
+  delay(2000);
+}
+
 void loop()
 {
   // stop_bf_obstacle_loop();
   // test_motor_loop();
   // timed_forward_then_reverse_loop();
-  spin_motors(FORWARD);
+  // spin_motors(BACKWARD);
+  // timed_fw_launch_bw_loop();
+  // launch_loop();
+  delay(10000);
+  timed_fw_launch_bw_loop();
 }
