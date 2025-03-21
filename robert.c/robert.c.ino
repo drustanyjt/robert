@@ -16,6 +16,8 @@ bool IS_LAUNCHED = false;
 
 Servo servo;
 
+bool IS_REVERSE = false;
+
 enum MotorDirection {
   FORWARD=0,
   STOP=1,
@@ -30,7 +32,7 @@ void setup() {
   pinMode(MOT_L, OUTPUT);
   START_TIME = millis();
 
-  servo.attach(SERVO_PIN, 500, 2400); // values calibrated on 28 feb
+  servo.attach(SERVO_PIN, 500, 2550); // values calibrated on 28 feb
   launcher_reset();
   Serial.begin(9600);
 }
@@ -70,7 +72,7 @@ void stop_bf_obstacle_loop() {
   int microsecs = pulseIn(ECHO_PIN, HIGH);
   float cms = microsecs*SPEED_OF_SOUND/2;
   Serial.println(cms);
-  if (cms < 30) {
+  if (cms < 5) {
     Serial.println("Obstacle detected");
     spin_motors(STOP);
   } else {
@@ -135,15 +137,90 @@ void launch_loop()
   delay(10000);
 }
 
+void us_fw_bw_loop()
+{
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+  int microsecs = pulseIn(ECHO_PIN, HIGH);
+  float cms = microsecs*SPEED_OF_SOUND/2;
+  Serial.println(cms);
+
+  if (cms < 20 && !IS_REVERSE) {
+    IS_REVERSE = true;
+    spin_motors(STOP);
+    delay(1000);
+  }
+
+  spin_motors(IS_REVERSE ? BACKWARD : FORWARD);
+  delay(1000);
+}
+
+void us_fw_launch_bw_loop()
+{
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+  int microsecs = pulseIn(ECHO_PIN, HIGH);
+  float cms = microsecs*SPEED_OF_SOUND/2;
+  Serial.println(cms);
+
+  if (cms < 20 && !IS_REVERSE) {
+    IS_REVERSE = true;
+    spin_motors(STOP);
+    delay(300);
+    launcher_shoot();
+    delay(1000);
+    launcher_reset();
+  }
+
+  spin_motors(IS_REVERSE ? BACKWARD : FORWARD);
+  delay(100);
+}
+
+void usdelayed_fw_launch_bw_loop()
+{
+  const int activation_time = 5000;
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+  int microsecs = pulseIn(ECHO_PIN, HIGH);
+  float cms = microsecs*SPEED_OF_SOUND/2;
+  Serial.println(cms);
+
+  if (!IS_LAUNCHED) {
+    if (cms < 20) {
+      IS_LAUNCHED = true;
+      START_TIME = millis();
+      delay(1000);
+    }
+    delay(1000/100);
+    return;
+  }
+
+  if (is_elapsed_time_gt(activation_time) && cms < 20 && !IS_REVERSE) {
+    IS_REVERSE = true;
+    delay(100);
+    spin_motors(STOP);
+    delay(300);
+    launcher_shoot();
+    delay(1000);
+    launcher_reset();
+  }
+
+  spin_motors(IS_REVERSE ? BACKWARD : FORWARD);
+  delay(1000 / 60);
+}
+
 void loop()
 {
   // stop_bf_obstacle_loop();
   // test_motor_loop();
-  timed_forward_then_reverse_loop();
+  // timed_forward_then_reverse_loop();
   // spin_motors(STOP);
   // timed_fw_launch_bw_loop();
+  // us_fw_launch_bw_loop();
+  usdelayed_fw_launch_bw_loop();
   // launcher_reset();
-  // launch_loop();
-  // delay(10000);
-  // timed_fw_launch_bw_loop();
+  
 }
