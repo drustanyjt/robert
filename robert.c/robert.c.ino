@@ -80,9 +80,9 @@ void stop_bf_obstacle_loop() {
 }
 
 void timed_forward_then_reverse_loop() {
-  int forward_time = 5;
+  int forward_time = 10;
   int stop_time = 1;
-  int reverse_time = 5;
+  int reverse_time = 10;
   spin_motors(FORWARD);
   delay(forward_time * 1000);
   spin_motors(STOP);
@@ -110,14 +110,14 @@ void launcher_shoot()
 
 void timed_fw_launch_bw_loop()
 {
-  int forward_time = 2;
-  int launch_time = 10;
-  int stop_time = 10;
+  int forward_time = 10;
+  int launch_time = 3;
+  int stop_time = 3;
   int reverse_time = forward_time;
   spin_motors(FORWARD);
   delay(forward_time * 1000);
   spin_motors(STOP);
-  delay(forward_time * 1000);
+  delay(launch_time * 1000);
   launcher_shoot();
   delay(launch_time * 1000);
   launcher_reset();
@@ -139,9 +139,9 @@ void loop()
 {
   // stop_bf_obstacle_loop();
   // test_motor_loop();
-  // timed_forward_then_reverse_loop();
-  // spin_motors(BACKWARD);
-  timed_fw_launch_bw_loop();
+  timed_forward_then_reverse_loop();
+  // spin_motors(STOP);
+  // timed_fw_launch_bw_loop();
   // launcher_reset();
   // launch_loop();
   // delay(10000);
